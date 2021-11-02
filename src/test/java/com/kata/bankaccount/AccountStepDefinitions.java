@@ -29,6 +29,11 @@ public class AccountStepDefinitions {
         account.deposit(new Amount(new BigDecimal(amount)));
     }
 
+    @When("^Withdrawal amount of (\\d+)$")
+    public void withdrawal_amount_of(int amount) {
+        account.withdrawal(new Amount(new BigDecimal(amount)));
+    }
+
     @Then("^balance equal to (\\d+)$")
     public void balance_equal_to(int expectedBalance) {
         Assertions.assertEquals(new Balance(new BigDecimal(expectedBalance)),account.balance());
