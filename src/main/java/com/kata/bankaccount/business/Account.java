@@ -27,12 +27,12 @@ public class Account {
 
     public void deposit(Amount amount) {
         balance = balance.add(amount);
-        statement.add(OperationType.DEPOSIT, amount, LocalDateTime.now(clock), balance);
+        statement.add(new Operation(OperationType.DEPOSIT, amount, LocalDateTime.now(clock)), balance);
     }
 
     public void withdrawal(Amount amount) {
         balance = balance.subtract(amount);
-        statement.add(OperationType.WITHDRAWAL, amount, LocalDateTime.now(clock), balance);
+        statement.add(new Operation(OperationType.WITHDRAWAL, amount, LocalDateTime.now(clock)), balance);
     }
 
     public void print(StatementPrinter statementPrinter) {

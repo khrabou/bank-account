@@ -80,7 +80,7 @@ public class AccountTest {
 
         Amount amount=new Amount(BigDecimal.TEN);
         Balance balance=new Balance(BigDecimal.TEN);
-        Assertions.assertTrue(statementPrinter.lines.contains(new StatementLine(OperationType.DEPOSIT,amount, LocalDateTime.now(fixedClock), balance)));
+        Assertions.assertTrue(statementPrinter.lines.contains(new StatementLine(new Operation(OperationType.DEPOSIT,amount, LocalDateTime.now(fixedClock)), balance)));
     }
 
     @Test
@@ -93,7 +93,7 @@ public class AccountTest {
 
         Amount amount=new Amount(BigDecimal.TEN);
         Balance balance=new Balance(BigDecimal.TEN);
-        Assertions.assertTrue(statementPrinter.lines.contains(new StatementLine(OperationType.WITHDRAWAL,amount, LocalDateTime.now(fixedClock), balance)));
+        Assertions.assertTrue(statementPrinter.lines.contains(new StatementLine(new Operation(OperationType.WITHDRAWAL,amount, LocalDateTime.now(fixedClock)), balance)));
     }
 
     private static class FakeStatementPrinter implements StatementPrinter {
