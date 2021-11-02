@@ -4,7 +4,7 @@ Feature: Print
     Given Account with balance of 0
     When Deposit amount of 100
     When print statement
-    Then console print print the following
+    Then console print the following
       | date       | operation   | amount    | balance |
       | 2021-10-21 17:00 | DEPOSIT     | 100       | 100     |
 
@@ -12,7 +12,7 @@ Feature: Print
     Given Account with balance of 200
     When Withdrawal amount of 100
     When print statement
-    Then console print print the following
+    Then console print the following
       | date       | operation   | amount    | balance |
       | 2021-10-21 17:00 | WITHDRAWAL     | 100       | 100     |
 
@@ -21,7 +21,7 @@ Feature: Print
     When Deposit amount of 100
     When Withdrawal amount of 100
     When print statement
-    Then console print print the following
+    Then console print the following
       | date       | operation   | amount    | balance |
       | 2021-10-21 17:00 | DEPOSIT     | 100       | 200     |
       | 2021-10-21 17:00 | WITHDRAWAL     | 100       | 100     |

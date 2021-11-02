@@ -62,8 +62,8 @@ public class AccountStepDefinitions {
         account.print(new ConsoleStatementPrinter());
     }
 
-    @Then("console print print the following")
-    public void console_print_print_the_following(DataTable dataTable) {
+    @Then("console print the following")
+    public void console_print_the_following(DataTable dataTable) {
         List<StatementLine> statementLines = formatDataTableToListOfStatement(dataTable);
         String expectedOut = "| OPERATION | DATE | AMOUNT | BALANCE |\n";
         for (StatementLine statementLine : statementLines) {
