@@ -83,6 +83,19 @@ public class AccountTest {
         Assertions.assertTrue(statementPrinter.lines.contains(new StatementLine(OperationType.DEPOSIT,amount, LocalDateTime.now(fixedClock), balance)));
     }
 
+    @Test
+    void should_print_withdrawal_statement_line(){
+        Account account = new Account(new Balance(new BigDecimal(20)),fixedClock);
+        FakeStatementPrinter statementPrinter=new FakeStatementPrinter();
+        account.withdrawal(new Amount(BigDecimal.TEN));
+
+        account.print(statementPrinter);
+
+        Amount amount=new Amount(BigDecimal.TEN);
+        Balance balance=new Balance(BigDecimal.TEN);
+        Assertions.assertTrue(statementPrinter.lines.contains(new StatementLine(OperationType.WITHDRAWAL,amount, LocalDateTime.now(fixedClock), balance)));
+    }
+
     private static class FakeStatementPrinter implements StatementPrinter {
 
         private final List<StatementLine> lines = new ArrayList<>();

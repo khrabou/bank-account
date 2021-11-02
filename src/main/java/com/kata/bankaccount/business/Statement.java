@@ -22,6 +22,6 @@ public class Statement {
     }
 
     public void add(OperationType operationType, Amount amount, LocalDateTime date, Balance balance) {
-        statementLines.add(new StatementLine(OperationType.DEPOSIT, amount, date, balance));
+        statementLines.add(new StatementLine(operationType, amount, date, balance));
     }
 }
