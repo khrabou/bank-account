@@ -23,5 +23,14 @@ public class BalanceTest {
         Assertions.assertEquals(BigDecimal.TEN,newBalance.value());
     }
 
+    @Test
+    void should_subtract_ten_from_balance_with_20_value(){
+        Balance balance = new Balance(new BigDecimal(20));
+
+        Balance newBalance = balance.subtract(new Amount(BigDecimal.TEN));
+
+        Assertions.assertEquals(BigDecimal.TEN,newBalance.value());
+    }
+
 }
 
