@@ -2,9 +2,7 @@ package com.bankaccount.bankaccount.domain.service;
 
 import com.bankaccount.bankaccount.common.InsufficientFundsException;
 import com.bankaccount.bankaccount.common.ResourceNotFoundException;
-import com.bankaccount.bankaccount.domain.model.Account;
-import com.bankaccount.bankaccount.domain.model.Amount;
-import com.bankaccount.bankaccount.domain.model.Balance;
+import com.bankaccount.bankaccount.domain.model.*;
 import com.bankaccount.bankaccount.domain.ports.out.FindAccountPort;
 import com.bankaccount.bankaccount.domain.ports.out.SaveAccountPort;
 import org.junit.jupiter.api.Test;
@@ -15,6 +13,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static com.bankaccount.bankaccount.domain.service.OperationsService.INSUFFICIENT_FUNDS;
@@ -46,7 +46,9 @@ class OperationsServiceTest {
 
         operationsService.deposit(accountId, amount);
 
-        Account expectedAccount = new Account(accountId, new Balance(BigDecimal.TWO));
+        Transaction expectedTransaction = new Transaction(new Operation(OperationType.DEPOSIT, amount, LocalDateTime.now())
+                , new Balance(BigDecimal.TWO));
+        Account expectedAccount = new Account(accountId, new Balance(BigDecimal.TWO), List.of(expectedTransaction));
         verify(saveAccountPort, times(1)).save(expectedAccount);
     }
 
@@ -74,7 +76,9 @@ class OperationsServiceTest {
 
         operationsService.withdraw(accountId, amount);
 
-        Account expectedAccount = new Account(accountId, new Balance(BigDecimal.ONE));
+        Transaction expectedTransaction = new Transaction(new Operation(OperationType.WITHDRAW, amount, LocalDateTime.now())
+                , new Balance(BigDecimal.ONE));
+        Account expectedAccount = new Account(accountId, new Balance(BigDecimal.ONE), List.of(expectedTransaction));
         verify(saveAccountPort, times(1)).save(expectedAccount);
     }
 

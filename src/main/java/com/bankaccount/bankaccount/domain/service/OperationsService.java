@@ -2,14 +2,16 @@ package com.bankaccount.bankaccount.domain.service;
 
 import com.bankaccount.bankaccount.common.InsufficientFundsException;
 import com.bankaccount.bankaccount.common.ResourceNotFoundException;
-import com.bankaccount.bankaccount.domain.model.Account;
-import com.bankaccount.bankaccount.domain.model.Amount;
-import com.bankaccount.bankaccount.domain.model.Balance;
+import com.bankaccount.bankaccount.domain.model.*;
 import com.bankaccount.bankaccount.domain.ports.in.DepositUseCase;
 import com.bankaccount.bankaccount.domain.ports.in.WithdrawUseCase;
 import com.bankaccount.bankaccount.domain.ports.out.FindAccountPort;
 import com.bankaccount.bankaccount.domain.ports.out.SaveAccountPort;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OperationsService implements DepositUseCase, WithdrawUseCase {
 
@@ -27,7 +29,10 @@ public class OperationsService implements DepositUseCase, WithdrawUseCase {
         Account account = findAccountPort.find(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException(NO_ACCOUNT_WAS_FOUND_FOR_THE_GIVEN_ID));
         Balance newBalance = account.balance().add(amount);
-        saveAccountPort.save(new Account(accountId, newBalance));
+
+        Transaction newTransaction = createTransaction(OperationType.DEPOSIT, amount, newBalance);
+
+        saveUpdatedAccount(accountId, newBalance, account.transactions(), newTransaction);
     }
 
     @Override
@@ -36,9 +41,29 @@ public class OperationsService implements DepositUseCase, WithdrawUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException(NO_ACCOUNT_WAS_FOUND_FOR_THE_GIVEN_ID));
 
         Balance newBalance = account.balance().subtract(amount);
-        if(newBalance.value().signum()==-1)
-            throw new InsufficientFundsException(INSUFFICIENT_FUNDS);
 
-        saveAccountPort.save(new Account(accountId, newBalance));
+        checkSufficientFunds(newBalance);
+
+        Transaction newTransaction = createTransaction(OperationType.WITHDRAW, amount, newBalance);
+
+        saveUpdatedAccount(accountId, newBalance, account.transactions(), newTransaction);
+    }
+
+    private void checkSufficientFunds(Balance newBalance) throws InsufficientFundsException {
+        if (newBalance.value().signum() == -1) {
+            throw new InsufficientFundsException(INSUFFICIENT_FUNDS);
+        }
+    }
+
+    private Transaction createTransaction(OperationType operationType, Amount amount, Balance newBalance) {
+        Operation operation = new Operation(operationType, amount, LocalDateTime.now());
+        return new Transaction(operation, newBalance);
+    }
+
+    private void saveUpdatedAccount(long accountId, Balance newBalance, List<Transaction> transactions, Transaction newTransaction) {
+        List<Transaction> updatedTransactions = new ArrayList<>(transactions);
+        updatedTransactions.add(newTransaction);
+
+        saveAccountPort.save(new Account(accountId, newBalance, updatedTransactions));
     }
 }
