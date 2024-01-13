@@ -60,8 +60,8 @@ public class ConsultationServiceTest {
     @Test
     void should_return_one_transaction() throws ResourceNotFoundException {
         long accountId = 15L;
-        Transaction expectedTransaction = new Transaction(new Operation(OperationType.DEPOSIT, new Amount(BigDecimal.TEN), LocalDateTime.now())
-                , new Balance(BigDecimal.TEN));
+        Transaction expectedTransaction = new Transaction(new Operation(OperationType.DEPOSIT, new Amount(BigDecimal.TEN),
+                LocalDateTime.of(2024,1,13,5,4)), new Balance(BigDecimal.TEN));
 
         Account account = new Account(accountId, new Balance(BigDecimal.TEN), List.of(expectedTransaction));
 

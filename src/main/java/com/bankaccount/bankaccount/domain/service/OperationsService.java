@@ -8,11 +8,14 @@ import com.bankaccount.bankaccount.domain.ports.in.WithdrawUseCase;
 import com.bankaccount.bankaccount.domain.ports.out.FindAccountPort;
 import com.bankaccount.bankaccount.domain.ports.out.SaveAccountPort;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class OperationsService implements DepositUseCase, WithdrawUseCase {
 
     public static final String NO_ACCOUNT_WAS_FOUND_FOR_THE_GIVEN_ID = "No account was found for the given ID";
@@ -23,6 +26,8 @@ public class OperationsService implements DepositUseCase, WithdrawUseCase {
 
     @Autowired
     FindAccountPort findAccountPort;
+
+    private final Clock clock = Clock.systemUTC();
 
     @Override
     public void deposit(long accountId, Amount amount) throws ResourceNotFoundException {
@@ -56,7 +61,7 @@ public class OperationsService implements DepositUseCase, WithdrawUseCase {
     }
 
     private Transaction createTransaction(OperationType operationType, Amount amount, Balance newBalance) {
-        Operation operation = new Operation(operationType, amount, LocalDateTime.now());
+        Operation operation = new Operation(operationType, amount, LocalDateTime.now(clock));
         return new Transaction(operation, newBalance);
     }
 

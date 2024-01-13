@@ -6,8 +6,4 @@ public class ResourceNotFoundException extends Exception{
         super(message);
     }
 
-    public ResourceNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
 }

@@ -5,15 +5,20 @@ import com.bankaccount.bankaccount.common.ResourceNotFoundException;
 import com.bankaccount.bankaccount.domain.model.*;
 import com.bankaccount.bankaccount.domain.ports.out.FindAccountPort;
 import com.bankaccount.bankaccount.domain.ports.out.SaveAccountPort;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +40,17 @@ class OperationsServiceTest {
 
     @MockBean
     FindAccountPort findAccountPort;
+    static Clock clock;
+
+    @BeforeAll
+    static void setupClock() {
+        clock = Clock.fixed(
+                Instant.parse("2024-01-13T10:15:24.655Z"),
+                ZoneId.of("Europe/Prague"));
+
+        Mockito.mockStatic(Clock.class)
+                .when(Clock::systemUTC).thenReturn(clock);
+    }
 
     @Test
     public void should_deposit_money_into_account() throws ResourceNotFoundException {
@@ -46,7 +62,7 @@ class OperationsServiceTest {
 
         operationsService.deposit(accountId, amount);
 
-        Transaction expectedTransaction = new Transaction(new Operation(OperationType.DEPOSIT, amount, LocalDateTime.now())
+        Transaction expectedTransaction = new Transaction(new Operation(OperationType.DEPOSIT, amount, LocalDateTime.now(clock))
                 , new Balance(BigDecimal.TWO));
         Account expectedAccount = new Account(accountId, new Balance(BigDecimal.TWO), List.of(expectedTransaction));
         verify(saveAccountPort, times(1)).save(expectedAccount);
@@ -76,7 +92,7 @@ class OperationsServiceTest {
 
         operationsService.withdraw(accountId, amount);
 
-        Transaction expectedTransaction = new Transaction(new Operation(OperationType.WITHDRAW, amount, LocalDateTime.now())
+        Transaction expectedTransaction = new Transaction(new Operation(OperationType.WITHDRAW, amount, LocalDateTime.now(clock))
                 , new Balance(BigDecimal.ONE));
         Account expectedAccount = new Account(accountId, new Balance(BigDecimal.ONE), List.of(expectedTransaction));
         verify(saveAccountPort, times(1)).save(expectedAccount);
