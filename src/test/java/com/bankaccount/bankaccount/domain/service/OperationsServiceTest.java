@@ -1,5 +1,6 @@
 package com.bankaccount.bankaccount.domain.service;
 
+import com.bankaccount.bankaccount.common.InsufficientFundsException;
 import com.bankaccount.bankaccount.common.ResourceNotFoundException;
 import com.bankaccount.bankaccount.domain.model.Account;
 import com.bankaccount.bankaccount.domain.model.Amount;
@@ -16,6 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+import static com.bankaccount.bankaccount.domain.service.OperationsService.INSUFFICIENT_FUNDS;
 import static com.bankaccount.bankaccount.domain.service.OperationsService.NO_ACCOUNT_WAS_FOUND_FOR_THE_GIVEN_ID;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
@@ -59,6 +61,50 @@ class OperationsServiceTest {
 
         then(throwable).isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage(NO_ACCOUNT_WAS_FOUND_FOR_THE_GIVEN_ID);
+
+    }
+
+    @Test
+    public void should_withdraw_money_from_account() throws ResourceNotFoundException, InsufficientFundsException {
+        long accountId = 15L;
+        Account account = new Account(accountId, new Balance(BigDecimal.TWO));
+        Amount amount = new Amount(BigDecimal.ONE);
+
+        when(findAccountPort.find(accountId)).thenReturn(Optional.of(account));
+
+        operationsService.withdraw(accountId, amount);
+
+        Account expectedAccount = new Account(accountId, new Balance(BigDecimal.ONE));
+        verify(saveAccountPort, times(1)).save(expectedAccount);
+    }
+
+    @Test
+    void should_throw_exception_when_withdraw_and_account_is_not_found() {
+        long accountId = 15L;
+        Amount amount = new Amount(BigDecimal.ONE);
+
+        when(findAccountPort.find(accountId)).thenReturn(Optional.empty());
+
+        Throwable throwable = catchThrowable(() -> operationsService.withdraw(accountId, amount));
+
+        then(throwable).isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(NO_ACCOUNT_WAS_FOUND_FOR_THE_GIVEN_ID);
+
+    }
+
+    @Test
+    void should_throw_exception_when_withdraw_and_funds_insufficient() {
+        long accountId = 15L;
+        Amount amount = new Amount(BigDecimal.TWO);
+
+        Account account = new Account(accountId, new Balance(BigDecimal.ZERO));
+
+        when(findAccountPort.find(accountId)).thenReturn(Optional.of(account));
+
+        Throwable throwable = catchThrowable(() -> operationsService.withdraw(accountId, amount));
+
+        then(throwable).isInstanceOf(InsufficientFundsException.class)
+                .hasMessage(INSUFFICIENT_FUNDS);
 
     }
 
