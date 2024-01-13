@@ -1,8 +1,7 @@
 package com.bankaccount.bankaccount.domain.service;
 
 import com.bankaccount.bankaccount.common.ResourceNotFoundException;
-import com.bankaccount.bankaccount.domain.model.Account;
-import com.bankaccount.bankaccount.domain.model.Balance;
+import com.bankaccount.bankaccount.domain.model.*;
 import com.bankaccount.bankaccount.domain.ports.out.FindAccountPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +11,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static com.bankaccount.bankaccount.domain.service.ConsultationService.NO_ACCOUNT_WAS_FOUND_FOR_THE_GIVEN_ID;
@@ -38,7 +39,7 @@ public class ConsultationServiceTest {
 
         when(findAccountPort.find(accountId)).thenReturn(Optional.of(account));
 
-        Balance balance = consultationService.consultBalance(accountId);
+        Balance balance = consultationService.balance(accountId);
 
         assertThat(balance).isEqualTo(expectedBalance);
     }
@@ -49,7 +50,35 @@ public class ConsultationServiceTest {
 
         when(findAccountPort.find(accountId)).thenReturn(Optional.empty());
 
-        Throwable throwable = catchThrowable(() -> consultationService.consultBalance(accountId));
+        Throwable throwable = catchThrowable(() -> consultationService.balance(accountId));
+
+        then(throwable).isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(NO_ACCOUNT_WAS_FOUND_FOR_THE_GIVEN_ID);
+
+    }
+
+    @Test
+    void should_return_one_transaction() throws ResourceNotFoundException {
+        long accountId = 15L;
+        Transaction expectedTransaction = new Transaction(new Operation(OperationType.DEPOSIT, new Amount(BigDecimal.TEN), LocalDateTime.now())
+                , new Balance(BigDecimal.TEN));
+
+        Account account = new Account(accountId, new Balance(BigDecimal.TEN), List.of(expectedTransaction));
+
+        when(findAccountPort.find(accountId)).thenReturn(Optional.of(account));
+
+        List<Transaction> transactions = consultationService.transactions(accountId);
+
+        assertThat(transactions).containsExactly(expectedTransaction);
+    }
+
+    @Test
+    void should_throw_exception_when_consulting_transactions_and_account_is_not_found() {
+        long accountId = 15L;
+
+        when(findAccountPort.find(accountId)).thenReturn(Optional.empty());
+
+        Throwable throwable = catchThrowable(() -> consultationService.transactions(accountId));
 
         then(throwable).isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage(NO_ACCOUNT_WAS_FOUND_FOR_THE_GIVEN_ID);

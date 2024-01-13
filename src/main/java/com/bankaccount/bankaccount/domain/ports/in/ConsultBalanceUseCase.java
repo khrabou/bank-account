@@ -5,5 +5,5 @@ import com.bankaccount.bankaccount.domain.model.Balance;
 
 public interface ConsultBalanceUseCase {
 
-    Balance consultBalance(long accountId) throws ResourceNotFoundException;
+    Balance balance(long accountId) throws ResourceNotFoundException;
 }
