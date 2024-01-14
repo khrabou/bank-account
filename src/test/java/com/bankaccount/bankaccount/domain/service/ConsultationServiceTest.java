@@ -84,4 +84,32 @@ public class ConsultationServiceTest {
                 .hasMessage(NO_ACCOUNT_WAS_FOUND_FOR_THE_GIVEN_ID);
 
     }
+
+    @Test
+    void should_return_account() throws ResourceNotFoundException {
+        long accountId = 15L;
+        Transaction transaction = new Transaction(new Operation(OperationType.DEPOSIT, new Amount(BigDecimal.TEN),
+                LocalDateTime.of(2024,1,13,5,4)), new Balance(BigDecimal.TEN));
+
+        Account expectedAccount = new Account(accountId, new Balance(BigDecimal.TEN), List.of(transaction));
+
+        when(findAccountPort.find(accountId)).thenReturn(Optional.of(expectedAccount));
+
+        Account account = consultationService.account(accountId);
+
+        assertThat(account).isEqualTo(expectedAccount);
+    }
+
+    @Test
+    void should_throw_exception_when_consulting_not_found_account() {
+        long accountId = 15L;
+
+        when(findAccountPort.find(accountId)).thenReturn(Optional.empty());
+
+        Throwable throwable = catchThrowable(() -> consultationService.account(accountId));
+
+        then(throwable).isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(NO_ACCOUNT_WAS_FOUND_FOR_THE_GIVEN_ID);
+
+    }
 }
