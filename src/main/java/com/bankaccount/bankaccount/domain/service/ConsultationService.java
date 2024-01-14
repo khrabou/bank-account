@@ -9,9 +9,11 @@ import com.bankaccount.bankaccount.domain.ports.in.ConsultBalanceUseCase;
 import com.bankaccount.bankaccount.domain.ports.in.ConsultTransactionsUseCase;
 import com.bankaccount.bankaccount.domain.ports.out.FindAccountPort;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class ConsultationService implements ConsultBalanceUseCase, ConsultTransactionsUseCase, ConsultAccountUseCase {
 
     public static final String NO_ACCOUNT_WAS_FOUND_FOR_THE_GIVEN_ID = "No account was found for the given ID";
